@@ -1,4 +1,4 @@
-import shipModule from "./ship";
+import shipFactory from "./ship";
 
 const gameboardModule = (() => {
 
@@ -45,7 +45,7 @@ const gameboardModule = (() => {
     }
 
     const placeShip = (shipLength, startCoordinates, isVertical) => {
-        const ship = shipModule.shipFactory(shipLength);
+        const ship = shipFactory(shipLength);
         const [startX, startY] = startCoordinates;
 
         if (isVertical) {

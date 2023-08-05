@@ -1,10 +1,19 @@
 const path = require("path");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: "development",
   entry: "./src/index.js",
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Battleship',
+    }),
+  ],
+  devServer: {
+    static: './dist',
+  },
   output: {
-    filename: "bundle.js",
+    filename: "[name].bundle.js",
     path: path.resolve(__dirname, "dist"),
   },
   module: {
@@ -32,5 +41,8 @@ module.exports = {
         },
       },
     ],
+  },
+  optimization: {
+    runtimeChunk: 'single',
   },
 };

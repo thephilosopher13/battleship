@@ -1,14 +1,19 @@
 import gameboardModule from "./gameboard";
 
-const playerFactory = () => {
+const playerFactory = (string) => {
+
+  const playerName = string
+  const playerGameboard = gameboardModule.gameboardFactory()
+
     const alreadyHitCoords = [];
 
-    const attack = (x, y, gameboard) => {
+    const attack = (x, y, playersArray) => {
       if (hasAlreadyHit(x, y)) {
         return; // insert error handler here
       } else {
+        const computer = playersArray[1]
         alreadyHitCoords.push(`${x},${y}`);
-        gameboard.receiveAttack(x, y);
+        computer.playerGameboard.receiveAttack(x, y);
       }
      };
 
@@ -16,7 +21,7 @@ const playerFactory = () => {
       return Math.floor(Math.random() * 10) + 1;
     }
 
-    const randomAttack = (gameboard) => {
+    const randomAttack = (playersArray) => {
       if (alreadyHitCoords.length === 100) {
         return; // insert error handler here
       }
@@ -29,8 +34,15 @@ const playerFactory = () => {
         randomY = getRandomNumberBetween1And10();
       }
 
+      const player = playersArray[0]
+
       alreadyHitCoords.push(`${randomX},${randomY}`);
-      gameboard.receiveAttack(randomX, randomY);
+      player.playerGameboard.receiveAttack(randomX, randomY);
+      const coordinateBoxDiv = document.getElementById(
+        `player1-coordinates${randomX},${randomY}`
+      )
+      coordinateBoxDiv.classList.add('attacked')
+
     };
 
     const hasAlreadyHit = (x, y) => {
@@ -42,9 +54,14 @@ const playerFactory = () => {
         }
       }
     };
+    
     return {
+      playerGameboard,
+      playerName,
       alreadyHitCoords,
       attack,
       randomAttack,
     };
 };
+
+export default playerFactory

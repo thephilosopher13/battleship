@@ -1,4 +1,6 @@
 import shipFactory from "./ship";
+import setupModule from "../ui/setup";
+
 
 const gameboardModule = (() => {
 
@@ -23,6 +25,8 @@ const gameboardModule = (() => {
   const gameboardFactory = () => {
     const gameBoard = {};
     gameBoard.thisBoardsShips = []
+    gameBoard.isGameOver = false
+    gameBoard.shipsPlacedCounter = 0
 
     gameBoard.initializeGameboardBoxes = () => {
       for (let i = 1; i <= 10; i++) {
@@ -43,25 +47,51 @@ const gameboardModule = (() => {
         if (coordinateBox.hasShip) return true
     }
 
-    const checkIfNeighborFieldsTaken = (isVertical, ship, row, column) => {
-      for (let i = 0; i < ship.length; i++) {
-        for (let x = -1; x <= 1; x++) {
-          for (let y = -1; y <= 1; y++) {
-            const check = isVertical ? ( row + x + i < 0 || row + x + i >= 11 || column + y < 1 || column + y >= 11 ) : ( row + x < 1 || row + x >= 11 || column + y + i < 1 || column + y + i >= 11 )
-            if (check) continue
-            const coordinates = isVertical ? gameBoard[`coordinates${row + x + i},${column + y}`] : gameBoard[`coordinates${row + x},${column + y + i}`]
-            if (coordinates.hasShip) return true
+    const checkIfAllSlotsExist = (isVertical, ship, row, column) => {
+      if (isVertical) {
+        for (let i = 0; i < ship.length; i++) {
+          if (!gameBoard[`coordinates${row + i},${column}`] || row + i > 10) {
+            return true;
+          }
+        } 
+      } else {
+        for (let i = 0; i < ship.length; i++) {
+          if (!gameBoard[`coordinates${row},${column + i}`] || column + i > 10) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    
+    
+
+    const checkIfAnyShipSlotsTaken = (isVertical, ship, row, column) => {
+      if (isVertical) {
+        for (let i = 0; i < ship.length; i++) {
+          if (row + i > 10 || gameBoard[`coordinates${row + i},${column}`].hasShip || (gameBoard[`coordinates${row + i},${column}`].hasShip) === undefined) {
+            return true;
+          }
+        } 
+      } else {
+        for (let i = 0; i < ship.length; i++) {
+          if (column + i > 10 || gameBoard[`coordinates${row},${column + i}`].hasShip || (gameBoard[`coordinates${row},${column + i}`].hasShip) === undefined) {
+            return true;
           }
         }
       }
     }
+    
 
 
     const isPlacementPossible = (ship, row, column, isVertical) => {
       if (checkIfPositionValid(row, column)) return false
       const shipFitCheck = isVertical ? checkIfShipFits(row, ship.length) : checkIfShipFits(column, ship.length)
+      console.log(shipFitCheck)
       if (shipFitCheck) return false
-      if (checkIfNeighborFieldsTaken(isVertical, ship, row, column)) return false
+      if (checkIfAllSlotsExist(isVertical, ship, row, column)) return false
+      if (checkIfAnyShipSlotsTaken(isVertical, ship, row, column)) return false
 
       return true
     }
@@ -77,33 +107,76 @@ const gameboardModule = (() => {
     }
 
     // below is a helper function so that I only have to type the loop once
-    const placeShipAtCoordinates = (ship, isVertical, primaryStartCoord, secondaryStartCoord, length) => {
-      for (let i = primaryStartCoord; i < (primaryStartCoord + length); i++) {
-        const coordinateBox = isVertical === true ? gameBoard[`coordinates${secondaryStartCoord},${i}`]  : gameBoard[`coordinates${i},${secondaryStartCoord}`];
-        coordinateBox.hasShip = true
-        ship.hitboxes.push(coordinateBox);
-      } 
+    const placeShipAtCoordinates = (ship, isVertical, x, y, length, isPlayer) => {
+      if (isVertical) {
+        for (let i = x; i < (x + length); i++) {
+          const coordinateBox = gameBoard[`coordinates${i},${y}`]
+          if (isPlayer) {
+            const coordinateBoxDiv = document.getElementById(`player1-coordinates${i},${y}`)
+            coordinateBoxDiv.classList.add('has-ship')
+          }
+          coordinateBox.hasShip = true
+          ship.hitboxes.push(coordinateBox);
+        }
+      } else {
+        for (let i = y; i < (y + length); i++) {
+          const coordinateBox = gameBoard[`coordinates${x},${i}`]
+          if (isPlayer) {
+            const coordinateBoxDiv = document.getElementById(`player1-coordinates${x},${i}`)
+            coordinateBoxDiv.classList.add('has-ship')
+          }
+          coordinateBox.hasShip = true
+          ship.hitboxes.push(coordinateBox);
+        }
+      }
       gameBoard.thisBoardsShips.push(ship)
+      gameBoard.shipsPlacedCounter++
     }
 
-    gameBoard.placeShip = (shipLength, startCoordinates, isVertical) => {
+
+    gameBoard.placeShip = (shipLength, x, y, isVertical, isPlayer) => {
         const ship = shipFactory(shipLength);
-        const [startX, startY] = startCoordinates;
 
         if (isVertical) {
-          if (!shipValidityCheck(gameBoard[`coordinates${startX},${startY}`], ship, startX, startY, true)) {
-            return // insert error here
+          if (!shipValidityCheck(gameBoard[`coordinates${x},${y}`], ship, x, y, true)) {
+            return false
           } else {
-            placeShipAtCoordinates(ship, true, startY, startX, shipLength)
+            placeShipAtCoordinates(ship, true, x, y, shipLength, isPlayer)
           }
         } else {
-          if (!shipValidityCheck(gameBoard[`coordinates${startX},${startY}`], ship, startX, startY, false)) {
-            return // insert error here
+          if (!shipValidityCheck(gameBoard[`coordinates${x},${y}`], ship, x, y, false)) {
+            return false
           } else {
-            placeShipAtCoordinates(ship, false, startY, startX, shipLength)
+            placeShipAtCoordinates(ship, false, x, y, shipLength, isPlayer)
           }
         }
       }
+    
+    const shipPlacerForAI = (array, shipLength) => {
+        const row = Math.floor(Math.random() * 10) + 1;
+        const column = Math.floor(Math.random() * 10) + 1;
+        const isVertical = Math.floor(Math.random() * 2) === 1 ? true : false
+        gameBoard.placeShip(shipLength, row, column, isVertical, false)
+    }
+
+    gameBoard.placeShipsRandomly = () => {
+
+      while (gameBoard.thisBoardsShips.length === 0) {
+        shipPlacerForAI(gameBoard.thisBoardsShips.length, 5)
+      }
+      while (gameBoard.thisBoardsShips.length  === 1) {
+        shipPlacerForAI(gameBoard.thisBoardsShips.length, 4)
+      }
+      while (gameBoard.thisBoardsShips.length  === 2) {
+        shipPlacerForAI(gameBoard.thisBoardsShips.length, 3)
+      }
+      while (gameBoard.thisBoardsShips.length  === 3) {
+        shipPlacerForAI(gameBoard.thisBoardsShips.length, 3)
+      }
+      while (gameBoard.thisBoardsShips.length  === 4) {
+        shipPlacerForAI(gameBoard.thisBoardsShips.length, 2)
+      } 
+    }
   
 
     const checkIfAttackIsValid = (x, y) => !(x < 1 || x >= 11 || y < 1 || y >= 11);
@@ -144,13 +217,13 @@ const gameboardModule = (() => {
 
     const isGameOver = (array) => {
       if (areAllSunk(array)) {
-        gameOverScenario()
+        gameBoard.isGameOver = true
       } else {
         return 
       }
     }
 
-    gameBoard.gameOverScenario = () => {}
+    gameBoard.initializeGameboardBoxes()
 
     return gameBoard
   }

@@ -14,6 +14,17 @@ body {
 #footer {
     width: 100vw;
     background-color: #222831;
+    color: #eeeeee;
+}
+
+#header > h1 {
+    margin-left: 2rem;
+}
+
+#footer {
+    text-align: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 #content {
@@ -80,18 +91,28 @@ body {
     background-color: slategray;
     padding: 2rem;
     border-radius: 1rem;
+    width: 20rem;
+    margin: 15% auto;
+    display: flex;
+    flex-direction: column;
 }
 
 #modal-content-text {
     color: #eeeeee;
     font-size: 2rem;
+    text-align: center;
 }
 
 #restart-button,
-.rotate-button {
+#rotate-button {
     padding: 1rem;
     border-radius: 1rem;
     font-size: 1rem;
     background-color: #222831;
     color: #eeeeee;
+    font-weight: 600;
+}
+
+#rotate-button {
+    margin-bottom: 2rem;
 }

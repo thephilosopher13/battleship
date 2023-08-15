@@ -1,13 +1,14 @@
 import playerFactory from '../factories/player'
 
-const player = playerFactory('player1')
-const computer = playerFactory('computer')
-const players = [player, computer]
-let whoseTurnIsIt
 
 const setupModule = (() => {
     const shipsLengths = [5, 4, 3, 3, 2]
     let shipsPlacedCounter = 0
+
+    let player = playerFactory('player1')
+    let computer = playerFactory('computer')
+    let players = [player, computer]
+    let whoseTurnIsIt
 
     const createRotateButton = () => {
         const button = document.createElement('button')
@@ -80,6 +81,12 @@ const setupModule = (() => {
         const contentDiv = document.getElementById('content')
         contentDiv.classList.add('setup')
 
+        player = playerFactory('player1')
+        computer = playerFactory('computer')
+        players = [player, computer]
+        whoseTurnIsIt
+        shipsPlacedCounter = 0
+ 
         contentDiv.appendChild(rotateButton)
         contentDiv.appendChild(grid)
     }

@@ -210,12 +210,12 @@ const gameboardModule = (() => {
                 const ship = findShipByCoordinates(`${x},${y}`)
                 ship.addHit()
                 areAllSunk(gameBoard.thisBoardsShips)
-                isGameOver(gameBoard.thisBoardsShips)
+                gameBoard.isGameOverActivator(gameBoard.thisBoardsShips)
             } 
         }
     }
 
-    const isGameOver = (array) => {
+    gameBoard.isGameOverActivator = (array) => {
       if (areAllSunk(array)) {
         gameBoard.isGameOver = true
       } else {

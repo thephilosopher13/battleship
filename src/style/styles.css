@@ -27,6 +27,18 @@ body {
     justify-content: center;
 }
 
+#content.game {
+    display: flex;
+    background-color: #eeeeee;
+    height: 100%;
+    width: 100%;
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+}
+
 .player1-grid,
 .computer-grid {
     display: grid;
@@ -40,10 +52,46 @@ body {
     border: 1px solid black;
 }
 
-.rotate-button {
-    margin-bottom: 2rem;
-}
-
 .player1-grid > .has-ship {
     background-color: #222831;
+}
+
+.has-ship.attacked {
+    background-color: red;
+}
+
+.attacked {
+    background-color: lightblue;
+}
+
+#modal {
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+#modal-content {
+    background-color: slategray;
+    padding: 2rem;
+    border-radius: 1rem;
+}
+
+#modal-content-text {
+    color: #eeeeee;
+    font-size: 2rem;
+}
+
+#restart-button,
+.rotate-button {
+    padding: 1rem;
+    border-radius: 1rem;
+    font-size: 1rem;
+    background-color: #222831;
+    color: #eeeeee;
 }

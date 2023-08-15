@@ -27,14 +27,13 @@ const setupModule = (() => {
         return button
     }
 
-
-
     const coordinateBoxEventListener = (x, y) => {
         const button = document.getElementById('rotate-button')
         if (button.classList.contains('true')) {
             player.playerGameboard.placeShip(
                 shipsLengths[shipsPlacedCounter],
-                x, y,
+                x,
+                y,
                 true,
                 true
             )
@@ -45,7 +44,8 @@ const setupModule = (() => {
         } else {
             player.playerGameboard.placeShip(
                 shipsLengths[shipsPlacedCounter],
-                x, y,
+                x,
+                y,
                 false,
                 true
             )
@@ -122,22 +122,40 @@ const setupModule = (() => {
 
         for (let i = 1; i <= 10; i++) {
             for (let j = 1; j <= 10; j++) {
-              const coordinateBox = computer.playerGameboard[`coordinates${i},${j}`]
-              if (coordinateBox.hasShip) {
+                const coordinateBox =
+                    computer.playerGameboard[`coordinates${i},${j}`]
                 const coordinateBoxDiv = document.getElementById(
                     `computer-coordinates${i},${j}`
                 )
-                coordinateBoxDiv.classList.add('has-ship')
+                if (coordinateBox.hasShip) {
+                    coordinateBoxDiv.classList.add('has-ship')
+                }
                 coordinateBoxDiv.addEventListener('click', () => {
+                    if (coordinateBoxDiv.classList.contains('attacked')) {
+                        return false
+                    }
                     player.attack(i, j, players)
                     coordinateBoxDiv.classList.add('attacked')
-                    turnCheck(player)
+                    player.playerGameboard.isGameOverActivator(
+                        player.playerGameboard.thisBoardsShips
+                    )
+                    if (checkIfGameOver(computer)) {
+                        return endGame('Player')
+                    } else {
+                        switchTurn()
+                    }
                     computer.randomAttack(players)
-                    turnCheck(computer)
+                    computer.playerGameboard.isGameOverActivator(
+                        computer.playerGameboard.thisBoardsShips
+                    )
+                    if (checkIfGameOver(player)) {
+                        return endGame('Computer')
+                    } else {
+                        switchTurn()
+                    }
                 })
-              }
             }
-          }
+        }
 
         for (let i = 1; i <= 10; i++) {
             for (let j = 1; j <= 10; j++) {
@@ -148,14 +166,6 @@ const setupModule = (() => {
                     coordinateBoxEventListener(i, j)
                 )
             }
-        }
-    }
-
-    const turnCheck = (currentPlayer) => {
-        if (checkIfGameOver(currentPlayer)) {
-            return endGame(currentPlayer)
-        } else {
-            switchTurn()
         }
     }
 
@@ -176,15 +186,40 @@ const setupModule = (() => {
     }
 
     const endGame = (winningPlayer) => {
-      
-    }
+        console.log(players)
+        const div = document.createElement('div')
+        const modalDiv = div.cloneNode()
+        const modalContentDiv = div.cloneNode()
+        const modalContentText = document.createElement('p')
+        const restartGameButton = document.createElement('button')
+        const body = document.querySelector('body')
 
+        modalDiv.id = 'modal'
+        modalContentDiv.id = 'modal-content'
+        modalContentText.id = 'modal-content-text'
+        modalContentText.textContent = `${winningPlayer} wins!`
+        restartGameButton.id = 'restart-button'
+        restartGameButton.textContent = 'Reset Game'
+
+        modalDiv.appendChild(modalContentDiv)
+        modalContentDiv.appendChild(modalContentText)
+        modalContentDiv.appendChild(restartGameButton)
+        body.appendChild(modalDiv)
+
+        restartGameButton.addEventListener('click', () => {
+            modalDiv.innerHTML = ''
+            modalDiv.remove()
+            const contentDiv = document.getElementById('content')
+            contentDiv.classList.remove('game')
+            contentDiv.innerHTML = ''
+            playerSetup()
+        })
+    }
 
     return {
         playerSetup,
-        startGame
+        startGame,
     }
 })()
-
 
 export default setupModule

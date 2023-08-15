@@ -125,8 +125,6 @@ const setupModule = (() => {
         rotateButton.remove()
         contentDiv.appendChild(computerGrid)
 
-        console.log(computer)
-
         for (let i = 1; i <= 10; i++) {
             for (let j = 1; j <= 10; j++) {
                 const coordinateBox =
@@ -193,7 +191,6 @@ const setupModule = (() => {
     }
 
     const endGame = (winningPlayer) => {
-        console.log(players)
         const div = document.createElement('div')
         const modalDiv = div.cloneNode()
         const modalContentDiv = div.cloneNode()
